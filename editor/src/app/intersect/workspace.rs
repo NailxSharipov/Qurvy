@@ -1,27 +1,17 @@
-use crate::draw::shape::ShapeWidget;
 use crate::geom::camera::Camera;
 use crate::sheet::widget::SheetWidget;
-use crate::point_editor::point::EditorPoint;
-use crate::point_editor::widget::{PointEditUpdate, PointsEditorWidget};
 use crate::app::intersect::content::IntersectMessage;
 use crate::app::design::{style_sheet_background, Design};
 use crate::app::main::{EditorApp, AppMessage};
-use i_triangle::i_overlay::i_shape::int::count::IntShapes;
-use i_triangle::i_overlay::i_shape::int::path::IntPaths;
-use i_triangle::i_overlay::vector::edge::VectorEdge;
 use iced::widget::Stack;
 use iced::widget::Container;
 use iced::{Length, Padding, Size, Vector};
-use crate::app::intersect::control::ModeOption;
-use crate::draw::vectors::VectorsWidget;
+use qurvy::int::bezier::path::IntBezierPath;
+use crate::bezier_editor::widget::{BezierEditorUpdateEvent, BezierEditorWidget};
 
 pub(crate) struct WorkspaceState {
     pub(crate) camera: Camera,
-    pub(crate) subj: IntPaths,
-    pub(crate) clip: IntPaths,
-    pub(crate) solution: IntShapes,
-    pub(crate) points: Vec<EditorPoint>,
-    pub(crate) vectors: Vec<VectorEdge>,
+    pub(crate) curves: Vec<IntBezierPath>
 }
 
 impl EditorApp {
@@ -39,92 +29,14 @@ impl EditorApp {
                     .width(Length::Fill)
                     .height(Length::Fill)
             );
-            if self.state.intersect.workspace.camera.is_not_empty() {
-                match self.state.intersect.mode {
-                    ModeOption::Edit => {
-                        stack = stack.push(
-                            Container::new(ShapeWidget::with_paths(
-                                &self.state.intersect.workspace.subj,
-                                self.state.intersect.workspace.camera,
-                                Some(self.state.intersect.fill.fill_rule()),
-                                Some(Design::subject_color().scale_alpha(0.2)),
-                                Some(Design::subject_color()),
-                                4.0,
-                            ))
-                                .width(Length::Fill)
-                                .height(Length::Fill)
-                        ).push(
-                            Container::new(ShapeWidget::with_paths(
-                                &self.state.intersect.workspace.clip,
-                                self.state.intersect.workspace.camera,
-                                Some(self.state.intersect.fill.fill_rule()),
-                                Some(Design::clip_color().scale_alpha(0.2)),
-                                Some(Design::clip_color()),
-                                4.0,
-                            ))
-                                .width(Length::Fill)
-                                .height(Length::Fill)
-                        )
-                    }
-                    ModeOption::Debug => {
-                        stack = stack.push(
-                            Container::new(VectorsWidget::with_vectors(
-                                &self.state.intersect.workspace.vectors,
-                                self.state.intersect.workspace.camera,
-                                Design::subject_color(),
-                                Design::clip_color(),
-                                Design::both_color(),
-                                2.0,
-                            ))
-                                .width(Length::Fill)
-                                .height(Length::Fill)
-                        )
-                    }
-                    _ => {
-                        stack = stack.push(
-                            Container::new(ShapeWidget::with_paths(
-                                &self.state.intersect.workspace.subj,
-                                self.state.intersect.workspace.camera,
-                                Some(self.state.intersect.fill.fill_rule()),
-                                None,
-                                Some(Design::subject_color()),
-                                1.0,
-                            ))
-                                .width(Length::Fill)
-                                .height(Length::Fill)
-                        ).push(
-                            Container::new(ShapeWidget::with_paths(
-                                &self.state.intersect.workspace.clip,
-                                self.state.intersect.workspace.camera,
-                                Some(self.state.intersect.fill.fill_rule()),
-                                None,
-                                Some(Design::clip_color()),
-                                1.0,
-                            ))
-                                .width(Length::Fill)
-                                .height(Length::Fill)
-                        ).push(
-                                Container::new(ShapeWidget::with_shapes(
-                                    &self.state.intersect.workspace.solution,
-                                    self.state.intersect.workspace.camera,
-                                    None,
-                                    Some(Design::solution_color().scale_alpha(0.2)),
-                                    Some(Design::solution_color()),
-                                    4.0,
-                                ))
-                                    .width(Length::Fill)
-                                    .height(Length::Fill)
-                            )
-                    }
-                }
+            for (id, curve) in self.state.intersect.workspace.curves.iter().enumerate() {
                 stack = stack.push(
-                    Container::new(PointsEditorWidget::new(
-                        &self.state.intersect.workspace.points,
+                    Container::new(BezierEditorWidget::new(
+                        id,
+                        curve,
                         self.state.intersect.workspace.camera,
-                        on_update_point)
-                        .set_drag_color(Design::accent_color())
-                        .set_hover_color(Design::negative_color())
-                    )
+                        on_update_anchor
+                    ))
                         .width(Length::Fill)
                         .height(Length::Fill)
                 );
@@ -140,7 +52,7 @@ impl EditorApp {
             .style(style_sheet_background)
     }
 
-    pub(super) fn intersect_update_point(&mut self, update: PointEditUpdate) {
+    pub(super) fn intersect_update_anchor(&mut self, update: BezierEditorUpdateEvent) {
         self.state.intersect.intersect_update_point(update);
     }
 
@@ -153,8 +65,8 @@ impl EditorApp {
     }
 }
 
-fn on_update_point(event: PointEditUpdate) -> AppMessage {
-    AppMessage::Intersect(IntersectMessage::PointEdited(event))
+fn on_update_anchor(event: BezierEditorUpdateEvent) -> AppMessage {
+    AppMessage::Intersect(IntersectMessage::BezierEdited(event))
 }
 
 fn on_update_size(size: Size) -> AppMessage {
@@ -171,6 +83,6 @@ fn on_update_drag(drag: Vector<f32>) -> AppMessage {
 
 impl Default for WorkspaceState {
     fn default() -> Self {
-        WorkspaceState { camera: Camera::empty(), subj: vec![], clip: vec![], solution: vec![], points: vec![], vectors: vec![] }
+        WorkspaceState { camera: Camera::empty(), curves: vec![] }
     }
 }

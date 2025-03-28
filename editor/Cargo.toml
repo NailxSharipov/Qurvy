@@ -20,3 +20,4 @@ console_log = "^1.0.0"
 console_error_panic_hook = "^0"
 
 i_triangle = "^0.28.0"
+qurvy = { path = "../qurvy" }

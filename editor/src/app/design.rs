@@ -10,10 +10,6 @@ pub(super) struct Design {
 }
 
 impl Design {
-    pub(crate) fn solution_color() -> Color {
-        Color::from_rgb8(32, 199, 32)
-    }
-
     pub(crate) fn subject_color() -> Color {
         Color::from_rgb8(255, 51, 51)
     }

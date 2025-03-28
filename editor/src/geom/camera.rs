@@ -1,6 +1,6 @@
-use i_triangle::i_overlay::i_float::int::point::IntPoint;
 use i_triangle::i_overlay::i_float::int::rect::IntRect;
 use iced::{Size, Vector};
+use qurvy::int::math::point::IntPoint;
 
 #[derive(Debug, Clone, Copy)]
 pub(crate) struct Camera {
@@ -48,9 +48,16 @@ impl Camera {
     }
 
     #[inline]
-    pub(crate) fn world_to_screen(&self, view_left_top: Vector<f32>, world: IntPoint) -> Vector<f32> {
+    pub(crate) fn int_world_to_screen(&self, view_left_top: Vector<f32>, world: IntPoint) -> Vector<f32> {
         let x = self.scale * (world.x as f32 - self.pos.x) + view_left_top.x + 0.5 * self.size.width;
         let y = self.scale * (self.pos.y - world.y as f32) + view_left_top.y + 0.5 * self.size.height;
+        Vector { x, y }
+    }
+
+    #[inline]
+    pub(crate) fn world_to_screen(&self, view_left_top: Vector<f32>, world: Vector<f32>) -> Vector<f32> {
+        let x = self.scale * (world.x - self.pos.x) + view_left_top.x + 0.5 * self.size.width;
+        let y = self.scale * (self.pos.y - world.y) + view_left_top.y + 0.5 * self.size.height;
         Vector { x, y }
     }
 

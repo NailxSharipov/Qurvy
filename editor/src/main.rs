@@ -1,9 +1,11 @@
 mod data;
 mod app;
 mod draw;
-mod point_editor;
 mod sheet;
 mod geom;
+mod bezier_editor;
+mod compat;
+mod mesh;
 
 use iced::application;
 use crate::app::main::EditorApp;

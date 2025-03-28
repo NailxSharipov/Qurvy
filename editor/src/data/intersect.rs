@@ -1,14 +1,11 @@
 use std::collections::HashMap;
 use std::path::PathBuf;
-use i_triangle::i_overlay::i_shape::int::path::IntPath;
+use qurvy::float::bezier::path::BezierPath;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub(crate) struct CurveTest {
-    #[serde(rename = "subjPaths")]
-    pub(crate) subj_paths: Vec<IntPath>,
-    #[serde(rename = "clipPaths")]
-    pub(crate) clip_paths: Vec<IntPath>,
+    pub(crate) curves: Vec<BezierPath>,
 }
 
 impl CurveTest {

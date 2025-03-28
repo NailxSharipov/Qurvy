@@ -1,5 +1,4 @@
 use i_triangle::i_overlay::i_float::float::point::FloatPoint;
-use i_triangle::i_overlay::i_float::int::point::IntPoint;
 use i_triangle::i_overlay::i_shape::int::path::{IntPath, IntPaths};
 use i_triangle::triangulation::float::Triangulation;
 use i_triangle::stroke::butt::ButtStrokeBuilder;
@@ -13,6 +12,8 @@ use iced::{Element, Length, Rectangle, Renderer, Size, Theme};
 use iced::advanced::graphics::color::pack;
 use iced::advanced::graphics::Mesh;
 use iced::advanced::graphics::mesh::{Indexed, SolidVertex2D};
+use qurvy::int::math::point::IntPoint;
+use crate::compat::convert::Convert;
 use crate::geom::camera::Camera;
 use crate::geom::vector::VectorExt;
 
@@ -84,13 +85,13 @@ impl PathWidget {
             max_y = max_y.max(p.y);
         }
 
-        camera.int_world_to_view(IntPoint::new(min_x, max_y))
+        camera.int_world_to_view(IntPoint::new(min_x as i64, max_y as i64))
     }
 
     fn append_path(builder: &mut TriangulationBuilder<FloatPoint<f32>>, camera: Camera, path: &IntPath, width: f32, arrows: bool) {
         let stroke_builder = ButtStrokeBuilder::new(StrokeStyle::with_width(width));
         let screen_path: Vec<_> = path.iter().map(|&p| {
-            let v = camera.int_world_to_view(p);
+            let v = camera.int_world_to_view(p.convert());
             FloatPoint::new(v.x, v.y)
         }).collect();
 
