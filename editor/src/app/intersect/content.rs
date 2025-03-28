@@ -147,7 +147,7 @@ impl IntersectState {
     fn load_test(&mut self, index: usize, resource: &mut IntersectResource) {
         if let Some(test) = resource.load(index) {
             self.workspace.curves.clear();
-            self.workspace.curves = test.curves.iter().map(|c|c.to_int(10.0)).collect();
+            self.workspace.curves = test.curves.iter().map(|c|c.to_int(2.0)).collect();
 
             self.cameras.insert(self.test, self.workspace.camera);
             let mut camera = *self.cameras.get(&index).unwrap_or(&Camera::empty());

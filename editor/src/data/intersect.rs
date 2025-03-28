@@ -14,6 +14,10 @@ impl CurveTest {
         let mut path_buf = PathBuf::from(folder);
         path_buf.push(file_name);
 
+        match path_buf.canonicalize() {
+            Ok(full_path) => println!("Full path: {}", full_path.display()),
+            Err(e) => eprintln!("Error: {}", e),
+        }
         let data = match std::fs::read_to_string(path_buf.as_path()) {
             Ok(data) => {
                 data

@@ -278,10 +278,8 @@ impl BezierEditorState {
             point: IntPoint { x: 0, y: 0 }
         };
 
-        // println!("cursor: {:?}", &cursor);
         for (i, anchor) in path.anchors.iter().enumerate() {
             let view_pos = camera.int_world_to_view(anchor.point);
-            // println!("screen_pos: {:?}", &screen_pos);
             let ds = Self::sqr_length(&cursor, &view_pos);
             if ds <= min_ds {
                 min_ds = ds;

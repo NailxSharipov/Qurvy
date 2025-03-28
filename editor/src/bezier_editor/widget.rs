@@ -1,4 +1,4 @@
-use iced::{event, mouse, Color, Element, Event, Length, Point, Rectangle, Renderer, Size, Theme};
+use iced::{event, mouse, Color, Element, Event, Length, Point, Rectangle, Renderer, Size, Theme, Vector};
 use iced::advanced::{layout, renderer, Clipboard, Layout, Shell, Widget};
 use iced::advanced::graphics::Mesh;
 use iced::advanced::widget::{tree, Tree};
@@ -156,36 +156,43 @@ impl<Message> Widget<Message, Theme, Renderer> for BezierEditorWidget<'_, Messag
         use iced::advanced::graphics::mesh::Renderer as _;
         use iced::advanced::Renderer as _;
 
-        let offset = layout.position() - Point::new(self.mesh_radius, self.mesh_radius);
+        let offset = layout.position();
+        let offset_vec = Vector::new(offset.x, offset.y);
+        let radius_offset = offset - Point::new(self.mesh_radius, self.mesh_radius);
 
         for (index, anchor) in self.path.anchors.iter().enumerate() {
-            let main = self.camera.world_to_screen(offset, anchor.point.convert());
+            let main_screen = self.camera.world_to_screen(radius_offset, anchor.point.convert());
+            let a = self.camera.world_to_screen(offset_vec, anchor.point.convert());
 
-            let mut path_builder = PathBuilder::new(self.camera, offset.convert());
-            if let Some(handle) = anchor.handle_in_point() {
-                path_builder.add_segment(main.convert(), handle.convert(), 1.0);
-            }
-
-            if let Some(handle) = anchor.handle_out_point() {
-                path_builder.add_segment(main.convert(), handle.convert(), 1.0);
-            }
-
-            if let Some(mesh) = path_builder.into_mesh(Color::new(0.8, 0.8, 1.0, 1.0)) {
-                renderer.with_translation(main, |renderer| renderer.draw_mesh(mesh));
-            }
-            {
-                let mesh = mesh_cache.point_mesh(index, state.active_anchor);
-                renderer.with_translation(main, |renderer| renderer.draw_mesh(mesh));
-            }
-
+            let mut path_builder = PathBuilder::new(self.camera, radius_offset.convert());
             if let Some(point) = anchor.handle_in_point() {
-                let mesh = mesh_cache.handle_in_mesh(index, state.active_anchor);
-                renderer.with_translation(point.convert(), |renderer| renderer.draw_mesh(mesh));
+                let screen = self.camera.world_to_screen(offset_vec, point.convert());
+                path_builder.add_segment(a.convert(), screen.convert(), 2.0);
             }
 
             if let Some(point) = anchor.handle_out_point() {
+                let screen = self.camera.world_to_screen(offset_vec, point.convert());
+                path_builder.add_segment(a.convert(), screen.convert(), 2.0);
+            }
+
+            if let Some(mesh) = path_builder.into_mesh( Color::new(0.6, 0.6, 1.0, 1.0)) {
+                renderer.with_translation(Vector::new(0.0, 0.0), |renderer| renderer.draw_mesh(mesh));
+            }
+            {
+                let mesh = mesh_cache.point_mesh(index, state.active_anchor);
+                renderer.with_translation(main_screen, |renderer| renderer.draw_mesh(mesh));
+            }
+
+            if let Some(point) = anchor.handle_in_point() {
+                let screen = self.camera.world_to_screen(radius_offset, point.convert());
+                let mesh = mesh_cache.handle_in_mesh(index, state.active_anchor);
+                renderer.with_translation(screen, |renderer| renderer.draw_mesh(mesh));
+            }
+
+            if let Some(point) = anchor.handle_out_point() {
+                let screen = self.camera.world_to_screen(radius_offset, point.convert());
                 let mesh = mesh_cache.handle_out_mesh(index, state.active_anchor);
-                renderer.with_translation(point.convert(), |renderer| renderer.draw_mesh(mesh));
+                renderer.with_translation(screen, |renderer| renderer.draw_mesh(mesh));
             }
         }
     }
