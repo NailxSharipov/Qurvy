@@ -12,10 +12,13 @@ pub struct IntBezierAnchor {
 }
 
 impl IntBezierAnchor {
+
+    #[inline]
     pub fn handle_in_point(&self) -> Option<IntPoint> {
         self.handle_in.map(|offset|self.point + offset)
     }
 
+    #[inline]
     pub fn handle_out_point(&self) -> Option<IntPoint> {
         self.handle_out.map(|offset|self.point + offset)
     }

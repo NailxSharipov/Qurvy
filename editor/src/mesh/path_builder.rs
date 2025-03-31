@@ -6,6 +6,8 @@ use iced::{Color, Rectangle, Transformation};
 use iced::advanced::graphics::color::pack;
 use iced::advanced::graphics::Mesh;
 use iced::advanced::graphics::mesh::{Indexed, SolidVertex2D};
+use qurvy::int::math::point::IntPoint;
+use crate::compat::convert::Convert;
 use crate::geom::camera::Camera;
 
 pub(crate) struct PathBuilder {
@@ -27,6 +29,24 @@ impl PathBuilder {
         let sub_triangulation = stroke_builder.build_open_path_mesh(&[a, b]);
         self.builder.append(sub_triangulation);
     }
+
+    #[inline]
+    pub(crate) fn add_paths(&mut self, points: &[IntPoint], closed: bool, width: f32) {
+        let float_points: Vec<_> = points.iter()
+            .map(|p| {
+                let screen = self.camera.world_to_screen(self.offset.convert(), p.convert());
+                screen.convert()
+            }).collect();
+
+        let stroke_builder = ButtStrokeBuilder::new(StrokeStyle::with_width(width));
+        let sub_triangulation = if closed {
+            stroke_builder.build_closed_path_mesh(&float_points)
+        } else {
+            stroke_builder.build_open_path_mesh(&float_points)
+        };
+        self.builder.append(sub_triangulation);
+    }
+
 
     pub(crate) fn into_mesh(self, color: Color) -> Option<Mesh> {
         let triangulation = self.builder.build();

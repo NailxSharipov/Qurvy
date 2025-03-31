@@ -1,3 +1,4 @@
+use i_triangle::i_overlay::i_float::float::point::FloatPoint;
 use iced::{event, mouse, Color, Element, Event, Length, Point, Rectangle, Renderer, Size, Theme, Vector};
 use iced::advanced::{layout, renderer, Clipboard, Layout, Shell, Widget};
 use iced::advanced::graphics::Mesh;
@@ -18,6 +19,7 @@ pub(crate) struct BezierEditorWidget<'a, Message> {
     pub(super) schema: BezierEditorColorSchema,
     pub(super) mesh_radius: f32,
     pub(super) hover_radius: f32,
+    pub(super) split_factor: usize,
     on_update: Box<dyn Fn(BezierEditorUpdateEvent) -> Message + 'a>,
 }
 
@@ -36,6 +38,7 @@ impl<'a, Message> BezierEditorWidget<'a, Message> {
             camera,
             mesh_radius: 6.0,
             hover_radius: 12.0,
+            split_factor: 2,
             schema: BezierEditorColorSchema::with_theme(Theme::default()),
             on_update: Box::new(on_update),
         }
@@ -159,6 +162,12 @@ impl<Message> Widget<Message, Theme, Renderer> for BezierEditorWidget<'_, Messag
         let offset = layout.position();
         let offset_vec = Vector::new(offset.x, offset.y);
         let radius_offset = offset - Point::new(self.mesh_radius, self.mesh_radius);
+
+        let mut contour_builder = PathBuilder::new(self.camera, offset_vec.convert());
+        contour_builder.add_paths(&self.path.points(self.split_factor), self.path.closed, 1.0);
+        if let Some(mesh) = contour_builder.into_mesh( Color::new(1.0, 0.6, 0.6, 1.0)) {
+            renderer.with_translation(Vector::new(0.0, 0.0), |renderer| renderer.draw_mesh(mesh));
+        }
 
         for (index, anchor) in self.path.anchors.iter().enumerate() {
             let main_screen = self.camera.world_to_screen(radius_offset, anchor.point.convert());

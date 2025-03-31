@@ -171,6 +171,7 @@ impl BezierEditorState {
         let closet_point = if let Some(point) = Self::find_closest_point(widget.camera, widget.hover_radius, &widget.path, cursor) {
             point
         } else {
+            // self.active_anchor = None;
             return false;
         };
 
@@ -255,6 +256,7 @@ impl BezierEditorState {
         let closet_point = if let Some(close_point) = Self::find_closest_point(camera, radius, &path, cursor) {
             close_point
         } else {
+            // self.active_anchor = None;
             return;
         };
         self.active_anchor = Some(ActiveAnchor {

@@ -18,6 +18,14 @@ impl IntPoint {
     pub fn new(x: i64, y: i64) -> Self {
         Self { x, y }
     }
+
+    #[inline]
+    pub fn mid(&self, other: &Self) -> Self {
+        let x = (self.x + other.x) / 2;
+        let y = (self.y + other.y) / 2;
+
+        Self { x, y }
+    }
 }
 
 impl From<IntOffset> for IntPoint {
