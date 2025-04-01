@@ -1,13 +1,14 @@
 use crate::int::bezier::anchor::IntBezierAnchor;
-use crate::int::bezier::spline_cube::CubeSpline;
-use crate::int::bezier::spline_line::LineSpline;
-use crate::int::bezier::spline_tetra::TetraSpline;
+use crate::int::bezier::spline_cube::IntCubeSpline;
+use crate::int::bezier::spline_line::IntLineSpline;
+use crate::int::bezier::spline_tetra::IntTetraSpline;
 use crate::int::math::point::IntPoint;
 
-pub(super) enum Spline {
-    Line(LineSpline),
-    Cube(CubeSpline),
-    Tetra(TetraSpline),
+#[derive(Debug, Clone)]
+pub(crate) enum IntSpline {
+    Line(IntLineSpline),
+    Cube(IntCubeSpline),
+    Tetra(IntTetraSpline),
 }
 
 pub(super) trait SplinePointsIter {
@@ -15,30 +16,30 @@ pub(super) trait SplinePointsIter {
     where
         Self: 'a;
 
-    fn points_iter(&self, exclude_last: bool, split_factor: usize) -> Self::ResourceIter<'_>;
+    fn points_iter(&self, start: bool, end: bool, split_factor: u32) -> Self::ResourceIter<'_>;
 }
 
-impl Spline {
+impl IntSpline {
     #[inline]
     pub(super) fn new(a: &IntBezierAnchor, b: &IntBezierAnchor) -> Self {
         match (a.handle_out_point(), b.handle_in_point()) {
-            (Some(am), Some(bm)) => Spline::Tetra(TetraSpline {
+            (Some(am), Some(bm)) => IntSpline::Tetra(IntTetraSpline {
                 a: a.point,
                 am,
                 bm,
                 b: b.point,
             }),
-            (Some(m), None) => Spline::Cube(CubeSpline {
+            (Some(m), None) => IntSpline::Cube(IntCubeSpline {
                 a: a.point,
                 m,
                 b: b.point,
             }),
-            (None, Some(m)) => Spline::Cube(CubeSpline {
+            (None, Some(m)) => IntSpline::Cube(IntCubeSpline {
                 a: a.point,
                 m,
                 b: b.point,
             }),
-            (None, None) => Spline::Line(LineSpline {
+            (None, None) => IntSpline::Line(IntLineSpline {
                 a: a.point,
                 b: b.point,
             }),
@@ -46,11 +47,11 @@ impl Spline {
     }
 
     #[inline]
-    pub fn fill(&self, target: &mut Vec<IntPoint>, exclude_last: bool, split_factor: usize) {
+    pub fn fill(&self, target: &mut Vec<IntPoint>, split_factor: u32) {
         match self {
-            Spline::Line(s) => target.extend(s.points_iter(exclude_last, split_factor)),
-            Spline::Cube(s) => target.extend(s.points_iter(exclude_last, split_factor)),
-            Spline::Tetra(s) => target.extend(s.points_iter(exclude_last, split_factor)),
+            IntSpline::Line(s) => target.extend(s.points_iter(true, false, split_factor)),
+            IntSpline::Cube(s) => target.extend(s.points_iter(true, false, split_factor)),
+            IntSpline::Tetra(s) => target.extend(s.points_iter(true, false, split_factor)),
         }
     }
 }

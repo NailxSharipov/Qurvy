@@ -1,6 +1,6 @@
 pub mod anchor;
 pub mod path;
-mod spline;
-mod spline_line;
-mod spline_cube;
-mod spline_tetra;
+pub(crate) mod spline;
+pub(crate) mod spline_line;
+pub(crate) mod spline_cube;
+pub(crate) mod spline_tetra;

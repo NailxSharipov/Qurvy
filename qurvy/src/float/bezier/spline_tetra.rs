@@ -1,16 +1,17 @@
-use crate::int::bezier::spline::SplinePointsIter;
-use crate::int::math::line::Line;
-use crate::int::math::point::IntPoint;
+use crate::float::bezier::spline::SplinePointsIter;
+use crate::float::math::line::Line;
+use crate::float::math::point::Point;
+use crate::int::bezier::spline_tetra::IntTetraSpline;
 
 #[derive(Debug, Clone)]
-pub(crate) struct IntTetraSpline {
-    pub(crate) a: IntPoint,
-    pub(crate) am: IntPoint,
-    pub(crate) bm: IntPoint,
-    pub(crate) b: IntPoint,
+pub(crate) struct TetraSpline {
+    pub(super) a: Point,
+    pub(super) am: Point,
+    pub(super) bm: Point,
+    pub(super) b: Point,
 }
 
-impl SplinePointsIter for IntTetraSpline {
+impl SplinePointsIter for TetraSpline {
     type ResourceIter<'a> = TetraSplinePointsIterator<'a>
     where
         Self: 'a;
@@ -21,8 +22,8 @@ impl SplinePointsIter for IntTetraSpline {
     }
 }
 
-pub(super) struct TetraSplinePointsIterator<'a> {
-    spline: &'a IntTetraSpline,
+pub(crate) struct TetraSplinePointsIterator<'a> {
+    spline: &'a TetraSpline,
     count: usize,
     split_factor: u32,
     i: usize,
@@ -30,7 +31,7 @@ pub(super) struct TetraSplinePointsIterator<'a> {
 
 impl<'a> TetraSplinePointsIterator<'a> {
     #[inline]
-    fn new(split_factor: u32, start: bool, end: bool, spline: &'a IntTetraSpline) -> Self {
+    fn new(split_factor: u32, start: bool, end: bool, spline: &'a TetraSpline) -> Self {
         let count = (1 << split_factor) + end as usize;
         let i = (!start) as usize;
         Self { i, count, split_factor, spline }
@@ -38,7 +39,7 @@ impl<'a> TetraSplinePointsIterator<'a> {
 }
 
 impl<'a> Iterator for TetraSplinePointsIterator<'a> {
-    type Item = IntPoint;
+    type Item = Point;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -67,5 +68,16 @@ impl<'a> Iterator for TetraSplinePointsIterator<'a> {
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         (self.count, Some(self.count))
+    }
+}
+
+impl From<&IntTetraSpline> for TetraSpline {
+    fn from(value: &IntTetraSpline) -> Self {
+        Self {
+            a: value.a.into(),
+            am: value.am.into(),
+            b: value.b.into(),
+            bm: value.bm.into(),
+        }
     }
 }

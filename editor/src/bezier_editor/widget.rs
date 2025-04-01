@@ -38,7 +38,7 @@ impl<'a, Message> BezierEditorWidget<'a, Message> {
             camera,
             mesh_radius: 6.0,
             hover_radius: 12.0,
-            split_factor: 2,
+            split_factor: 5,
             schema: BezierEditorColorSchema::with_theme(Theme::default()),
             on_update: Box::new(on_update),
         }

@@ -1,7 +1,7 @@
 use crate::convert::to_float::ToFloat;
 use crate::float::bezier::path::BezierPath;
 use crate::int::bezier::anchor::IntBezierAnchor;
-use crate::int::bezier::spline::Spline;
+use crate::int::bezier::spline::IntSpline;
 use crate::int::math::point::IntPoint;
 use serde::{Deserialize, Serialize};
 
@@ -23,23 +23,23 @@ impl ToFloat<BezierPath> for IntBezierPath {
 
 impl IntBezierPath {
     #[inline]
-    pub fn points(&self, split_factor: usize) -> Vec<IntPoint> {
+    pub fn points(&self, split_factor: u32) -> Vec<IntPoint> {
         let capacity = self.anchors.len() << split_factor;
         let mut points = Vec::with_capacity(capacity);
         for spline in self.splines() {
-            spline.fill(&mut points, true, split_factor);
+            spline.fill(&mut points, split_factor);
         }
 
         points
     }
 
     #[inline]
-    fn splines(&self) -> impl Iterator<Item = Spline> + '_ {
+    pub fn splines(&self) -> impl Iterator<Item = IntSpline> + '_ {
         SplineIterator::new(self)
     }
 }
 
-struct SplineIterator<'a> {
+pub(crate) struct SplineIterator<'a> {
     path: &'a IntBezierPath,
     i: usize,
 }
@@ -52,7 +52,7 @@ impl<'a> SplineIterator<'a> {
 }
 
 impl<'a> Iterator for SplineIterator<'a> {
-    type Item = Spline;
+    type Item = IntSpline;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -65,7 +65,7 @@ impl<'a> Iterator for SplineIterator<'a> {
             return if self.path.closed {
                 let first = self.path.anchors.first().unwrap();
                 let last = self.path.anchors.last().unwrap();
-                Some(Spline::new(last, first))
+                Some(IntSpline::new(last, first))
             } else {
                 None
             };
@@ -76,7 +76,7 @@ impl<'a> Iterator for SplineIterator<'a> {
 
         self.i += 1;
 
-        Some(Spline::new(a0, a1))
+        Some(IntSpline::new(a0, a1))
     }
 }
 
@@ -110,7 +110,7 @@ mod tests {
                     point: IntPoint { x: 0, y: -1000 },
                     handle_in: Some(IntOffset { x: 100, y: 0 }),
                     handle_out: Some(IntOffset { x: -100, y: 0 }),
-                }
+                },
             ],
             closed: true,
         };

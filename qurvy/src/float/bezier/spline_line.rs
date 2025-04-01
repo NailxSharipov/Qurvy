@@ -1,14 +1,15 @@
-use crate::int::bezier::spline::SplinePointsIter;
-use crate::int::math::line::Line;
-use crate::int::math::point::IntPoint;
+use crate::float::bezier::spline::SplinePointsIter;
+use crate::float::math::line::Line;
+use crate::float::math::point::Point;
+use crate::int::bezier::spline_line::IntLineSpline;
 
 #[derive(Debug, Clone)]
-pub(crate) struct IntLineSpline {
-    pub(crate) a: IntPoint,
-    pub(crate) b: IntPoint,
+pub(crate) struct LineSpline {
+    pub(crate) a: Point,
+    pub(crate) b: Point,
 }
 
-impl SplinePointsIter for IntLineSpline {
+impl SplinePointsIter for LineSpline {
     type ResourceIter<'a> = LineSplinePointsIterator<'a>
     where
         Self: 'a;
@@ -19,8 +20,8 @@ impl SplinePointsIter for IntLineSpline {
     }
 }
 
-pub(super) struct LineSplinePointsIterator<'a> {
-    spline: &'a IntLineSpline,
+pub(crate) struct LineSplinePointsIterator<'a> {
+    spline: &'a LineSpline,
     count: usize,
     split_factor: u32,
     i: usize,
@@ -28,7 +29,7 @@ pub(super) struct LineSplinePointsIterator<'a> {
 
 impl<'a> LineSplinePointsIterator<'a> {
     #[inline]
-    fn new(split_factor: u32, start: bool, end: bool, spline: &'a IntLineSpline) -> Self {
+    fn new(split_factor: u32, start: bool, end: bool, spline: &'a LineSpline) -> Self {
         let count = (1 << split_factor) + end as usize;
         let i = (!start) as usize;
         Self { i, count, split_factor, spline }
@@ -36,7 +37,7 @@ impl<'a> LineSplinePointsIterator<'a> {
 }
 
 impl<'a> Iterator for LineSplinePointsIterator<'a> {
-    type Item = IntPoint;
+    type Item = Point;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -53,5 +54,14 @@ impl<'a> Iterator for LineSplinePointsIterator<'a> {
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         (self.count, Some(self.count))
+    }
+}
+
+impl From<IntLineSpline> for LineSpline {
+    fn from(value: IntLineSpline) -> Self {
+        Self {
+            a: value.a.into(),
+            b: value.b.into(),
+        }
     }
 }

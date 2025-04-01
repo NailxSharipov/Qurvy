@@ -1,15 +1,16 @@
-use crate::int::bezier::spline::SplinePointsIter;
-use crate::int::math::line::Line;
-use crate::int::math::point::IntPoint;
+use crate::float::bezier::spline::SplinePointsIter;
+use crate::float::math::line::Line;
+use crate::float::math::point::Point;
+use crate::int::bezier::spline_cube::IntCubeSpline;
 
 #[derive(Debug, Clone)]
-pub(crate) struct IntCubeSpline {
-    pub(crate) a: IntPoint,
-    pub(crate) m: IntPoint,
-    pub(crate) b: IntPoint,
+pub(crate) struct CubeSpline {
+    pub(crate) a: Point,
+    pub(crate) m: Point,
+    pub(crate) b: Point,
 }
 
-impl SplinePointsIter for IntCubeSpline {
+impl SplinePointsIter for CubeSpline {
     type ResourceIter<'a> = CubeSplinePointsIterator<'a>
     where
         Self: 'a;
@@ -20,8 +21,8 @@ impl SplinePointsIter for IntCubeSpline {
     }
 }
 
-pub(super) struct CubeSplinePointsIterator<'a> {
-    spline: &'a IntCubeSpline,
+pub(crate) struct CubeSplinePointsIterator<'a> {
+    spline: &'a CubeSpline,
     count: usize,
     split_factor: u32,
     i: usize,
@@ -29,7 +30,7 @@ pub(super) struct CubeSplinePointsIterator<'a> {
 
 impl<'a> CubeSplinePointsIterator<'a> {
     #[inline]
-    fn new(split_factor: u32, start: bool, end: bool, spline: &'a IntCubeSpline) -> Self {
+    fn new(split_factor: u32, start: bool, end: bool, spline: &'a CubeSpline) -> Self {
         let count = (1 << split_factor) + end as usize;
         let i = (!start) as usize;
         Self { i, count, split_factor, spline }
@@ -37,7 +38,7 @@ impl<'a> CubeSplinePointsIterator<'a> {
 }
 
 impl<'a> Iterator for CubeSplinePointsIterator<'a> {
-    type Item = IntPoint;
+    type Item = Point;
 
     #[inline]
     fn next(&mut self) -> Option<Self::Item> {
@@ -59,5 +60,15 @@ impl<'a> Iterator for CubeSplinePointsIterator<'a> {
     #[inline]
     fn size_hint(&self) -> (usize, Option<usize>) {
         (self.count, Some(self.count))
+    }
+}
+
+impl From<&IntCubeSpline> for CubeSpline {
+    fn from(value: &IntCubeSpline) -> Self {
+        Self {
+            a: value.a.into(),
+            m: value.m.into(),
+            b: value.b.into(),
+        }
     }
 }

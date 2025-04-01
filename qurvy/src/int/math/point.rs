@@ -1,3 +1,4 @@
+use std::ops;
 use serde::{Deserialize, Serialize};
 use crate::convert::to_float::ToFloat;
 use crate::float::math::point::Point;
@@ -25,6 +26,55 @@ impl IntPoint {
         let y = (self.y + other.y) / 2;
 
         Self { x, y }
+    }
+}
+
+
+impl ops::Add for IntPoint {
+    type Output = IntPoint;
+
+    #[inline(always)]
+    fn add(self, other: IntPoint) -> IntPoint {
+        IntPoint {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
+impl ops::Add<IntOffset> for IntPoint {
+    type Output = IntPoint;
+
+    #[inline(always)]
+    fn add(self, other: IntOffset) -> IntPoint {
+        IntPoint {
+            x: self.x + other.x,
+            y: self.y + other.y,
+        }
+    }
+}
+
+impl ops::Sub for IntPoint {
+    type Output = IntPoint;
+
+    #[inline(always)]
+    fn sub(self, other: IntPoint) -> IntPoint {
+        IntPoint {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
+    }
+}
+
+impl ops::Sub<IntOffset> for IntPoint {
+    type Output = IntPoint;
+
+    #[inline(always)]
+    fn sub(self, other: IntOffset) -> IntPoint {
+        IntPoint {
+            x: self.x - other.x,
+            y: self.y - other.y,
+        }
     }
 }
 
