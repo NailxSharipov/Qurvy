@@ -10,7 +10,8 @@ pub(crate) struct IntCubeSpline {
 }
 
 impl SplinePointsIter for IntCubeSpline {
-    type ResourceIter<'a> = CubeSplinePointsIterator<'a>
+    type ResourceIter<'a>
+        = CubeSplinePointsIterator<'a>
     where
         Self: 'a;
 
@@ -20,7 +21,7 @@ impl SplinePointsIter for IntCubeSpline {
     }
 }
 
-pub(super) struct CubeSplinePointsIterator<'a> {
+pub(crate) struct CubeSplinePointsIterator<'a> {
     spline: &'a IntCubeSpline,
     count: usize,
     split_factor: u32,
@@ -32,7 +33,12 @@ impl<'a> CubeSplinePointsIterator<'a> {
     fn new(split_factor: u32, start: bool, end: bool, spline: &'a IntCubeSpline) -> Self {
         let count = (1 << split_factor) + end as usize;
         let i = (!start) as usize;
-        Self { i, count, split_factor, spline }
+        Self {
+            i,
+            count,
+            split_factor,
+            spline,
+        }
     }
 }
 

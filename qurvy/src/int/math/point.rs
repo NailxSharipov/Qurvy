@@ -1,5 +1,6 @@
 use std::ops;
 use serde::{Deserialize, Serialize};
+use crate::convert::grid::Grid;
 use crate::convert::to_float::ToFloat;
 use crate::float::math::point::Point;
 use crate::int::math::offset::IntOffset;
@@ -87,9 +88,9 @@ impl From<IntOffset> for IntPoint {
 
 impl ToFloat<Point> for IntPoint {
     #[inline]
-    fn to_float(&self, scale: f64) -> Point {
-        let x = scale * (self.x as f64);
-        let y = scale * (self.y as f64);
+    fn to_float(&self, grid: &Grid) -> Point {
+        let x = grid.int_to_float(self.x);
+        let y = grid.int_to_float(self.y);
 
         Point::new(x, y)
     }

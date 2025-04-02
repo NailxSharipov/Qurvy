@@ -6,15 +6,15 @@ use crate::int::bezier::spline_cube::IntCubeSpline;
 use crate::int::bezier::spline_line::IntLineSpline;
 use crate::int::bezier::spline_tetra::IntTetraSpline;
 
-const AVG_LEN_SPLIT_FACTOR: u32 = 4;
-const MIN_SPLIT_LEN: u64 = 4;
+const AVG_LEN_CALCULATION_SPLIT_COUNT_POWER: u32 = 3;
 
 pub(crate) trait IntSplineLength {
     fn avg_length(&self, split_factor: u32) -> u64;
+
     #[inline]
     fn max_split_factor(&self) -> u32 {
-        let len = self.avg_length(AVG_LEN_SPLIT_FACTOR);
-        if len < MIN_SPLIT_LEN {
+        let len = AVG_LEN_CALCULATION_SPLIT_COUNT_POWER;
+        if len < 4 {
             0
         } else {
             len.ilog2() - 2

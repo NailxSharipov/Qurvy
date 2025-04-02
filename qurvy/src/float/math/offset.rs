@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::convert::grid::Grid;
 use crate::convert::to_int::ToInt;
 use crate::float::math::point::Point;
 use crate::int::math::offset::IntOffset;
@@ -25,9 +26,9 @@ impl From<Point> for Offset {
 
 impl ToInt<IntOffset> for Offset {
     #[inline]
-    fn to_int(&self, scale: f64) -> IntOffset {
-        let x = (scale * self.x) as i64;
-        let y = (scale * self.y) as i64;
+    fn to_int(&self, grid: &Grid) -> IntOffset {
+        let x = grid.float_to_int(self.x);
+        let y = grid.float_to_int(self.y);
 
         IntOffset::new(x, y)
     }

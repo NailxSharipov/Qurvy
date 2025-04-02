@@ -11,7 +11,7 @@ pub(crate) enum IntSpline {
     Tetra(IntTetraSpline),
 }
 
-pub(super) trait SplinePointsIter {
+pub(crate) trait SplinePointsIter {
     type ResourceIter<'a>: Iterator<Item=IntPoint>
     where
         Self: 'a;

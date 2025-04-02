@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::convert::grid::Grid;
 use crate::convert::to_int::ToInt;
 use crate::float::math::offset::Offset;
 use crate::float::math::point::Point;
@@ -27,11 +28,11 @@ impl BezierAnchor {
 
 impl ToInt<IntBezierAnchor> for BezierAnchor {
     #[inline]
-    fn to_int(&self, scale: f64) -> IntBezierAnchor {
+    fn to_int(&self, grid: &Grid) -> IntBezierAnchor {
         IntBezierAnchor {
-            point: self.point.to_int(scale),
-            handle_in: self.handle_in.map(|handle| handle.to_int(scale)),
-            handle_out: self.handle_out.map(|handle| handle.to_int(scale)),
+            point: self.point.to_int(grid),
+            handle_in: self.handle_in.map(|handle| handle.to_int(grid)),
+            handle_out: self.handle_out.map(|handle| handle.to_int(grid)),
         }
     }
 }

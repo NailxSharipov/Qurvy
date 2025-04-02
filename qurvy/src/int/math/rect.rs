@@ -8,6 +8,15 @@ pub(crate) struct IntRect {
 }
 
 impl IntRect {
+
+    #[inline(always)]
+    pub(crate) fn empty() -> Self {
+        Self {
+            min: IntPoint::new(i64::MAX, i64::MAX),
+            max: IntPoint::new(i64::MIN, i64::MIN),
+        }
+    }
+
     #[inline(always)]
     pub(crate) fn with_min_max(min: IntPoint, max: IntPoint) -> Self {
         Self { min, max }
@@ -19,10 +28,7 @@ impl IntRect {
     }
 
     pub(crate) fn with_iter<'a, I: Iterator<Item=&'a IntPoint>>(iter: I) -> Self {
-        let mut rect = Self {
-            min: IntPoint::new(i64::MAX, i64::MAX),
-            max: IntPoint::new(i64::MIN, i64::MIN),
-        };
+        let mut rect = Self::empty();
 
         for p in iter {
             rect.add_point(p);

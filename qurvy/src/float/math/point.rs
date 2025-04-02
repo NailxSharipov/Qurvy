@@ -1,5 +1,6 @@
 use std::ops;
 use serde::{Deserialize, Serialize};
+use crate::convert::grid::Grid;
 use crate::convert::to_int::ToInt;
 use crate::float::math::offset::Offset;
 use crate::int::math::point::IntPoint;
@@ -36,16 +37,6 @@ impl From<IntPoint> for Point {
     #[inline]
     fn from(value: IntPoint) -> Self {
         Self::new(value.x as f64, value.y as f64)
-    }
-}
-
-impl ToInt<IntPoint> for Point {
-    #[inline]
-    fn to_int(&self, scale: f64) -> IntPoint {
-        let x = (scale * self.x) as i64;
-        let y = (scale * self.y) as i64;
-
-        IntPoint::new(x, y)
     }
 }
 
@@ -94,5 +85,15 @@ impl ops::Sub<Offset> for Point {
             x: self.x - other.x,
             y: self.y - other.y,
         }
+    }
+}
+
+impl ToInt<IntPoint> for Point {
+    #[inline]
+    fn to_int(&self, grid: &Grid) -> IntPoint {
+        let x = grid.float_to_int(self.x);
+        let y = grid.float_to_int(self.y);
+
+        IntPoint::new(x, y)
     }
 }

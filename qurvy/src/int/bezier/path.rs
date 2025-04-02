@@ -4,6 +4,7 @@ use crate::int::bezier::anchor::IntBezierAnchor;
 use crate::int::bezier::spline::IntSpline;
 use crate::int::math::point::IntPoint;
 use serde::{Deserialize, Serialize};
+use crate::convert::grid::Grid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IntBezierPath {
@@ -13,9 +14,9 @@ pub struct IntBezierPath {
 
 impl ToFloat<BezierPath> for IntBezierPath {
     #[inline]
-    fn to_float(&self, scale: f64) -> BezierPath {
+    fn to_float(&self, grid: &Grid) -> BezierPath {
         BezierPath {
-            anchors: self.anchors.iter().map(|a| a.to_float(scale)).collect(),
+            anchors: self.anchors.iter().map(|a| a.to_float(grid)).collect(),
             closed: self.closed,
         }
     }
@@ -34,7 +35,7 @@ impl IntBezierPath {
     }
 
     #[inline]
-    pub fn splines(&self) -> impl Iterator<Item = IntSpline> + '_ {
+    pub(crate) fn splines(&self) -> impl Iterator<Item = IntSpline> + '_ {
         SplineIterator::new(self)
     }
 }

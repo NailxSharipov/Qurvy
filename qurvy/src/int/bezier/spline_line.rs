@@ -1,6 +1,7 @@
 use crate::int::bezier::spline::SplinePointsIter;
 use crate::int::math::line::Line;
 use crate::int::math::point::IntPoint;
+use crate::int::math::rect::IntRect;
 
 #[derive(Debug, Clone)]
 pub(crate) struct IntLineSpline {
@@ -8,8 +9,30 @@ pub(crate) struct IntLineSpline {
     pub(crate) b: IntPoint,
 }
 
+impl IntLineSpline {
+
+    #[inline]
+    pub(crate) fn boundary(&self) -> IntRect {
+        let (min_x, max_x) = if self.a.x < self.b.x {
+            (self.a.x, self.b.x)
+        } else {
+            (self.b.x, self.a.x)
+        };
+        let (min_y, max_y) = if self.a.y < self.b.y {
+            (self.a.y, self.b.y)
+        } else {
+            (self.b.y, self.a.y)
+        };
+        IntRect {
+            min: IntPoint { x: min_x, y: min_y },
+            max: IntPoint { x: max_x, y: max_y },
+        }
+    }
+}
+
 impl SplinePointsIter for IntLineSpline {
-    type ResourceIter<'a> = LineSplinePointsIterator<'a>
+    type ResourceIter<'a>
+        = LineSplinePointsIterator<'a>
     where
         Self: 'a;
 
@@ -19,7 +42,7 @@ impl SplinePointsIter for IntLineSpline {
     }
 }
 
-pub(super) struct LineSplinePointsIterator<'a> {
+pub(crate) struct LineSplinePointsIterator<'a> {
     spline: &'a IntLineSpline,
     count: usize,
     split_factor: u32,
@@ -31,7 +54,12 @@ impl<'a> LineSplinePointsIterator<'a> {
     fn new(split_factor: u32, start: bool, end: bool, spline: &'a IntLineSpline) -> Self {
         let count = (1 << split_factor) + end as usize;
         let i = (!start) as usize;
-        Self { i, count, split_factor, spline }
+        Self {
+            i,
+            count,
+            split_factor,
+            spline,
+        }
     }
 }
 

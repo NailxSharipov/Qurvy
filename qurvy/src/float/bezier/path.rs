@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::convert::grid::Grid;
 use crate::convert::to_int::ToInt;
 use crate::float::bezier::anchor::BezierAnchor;
 use crate::int::bezier::path::IntBezierPath;
@@ -11,9 +12,9 @@ pub struct BezierPath {
 
 impl ToInt<IntBezierPath> for BezierPath {
     #[inline]
-    fn to_int(&self, scale: f64) -> IntBezierPath {
+    fn to_int(&self, grid: &Grid) -> IntBezierPath {
         IntBezierPath {
-            anchors: self.anchors.iter().map(|a|a.to_int(scale)).collect(),
+            anchors: self.anchors.iter().map(|a|a.to_int(grid)).collect(),
             closed: self.closed,
         }
     }
