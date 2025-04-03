@@ -1,44 +1,44 @@
 use crate::float::bezier::spline::SplinePointsIter;
 use crate::float::math::line::Line;
 use crate::float::math::point::Point;
-use crate::int::bezier::spline_tetra::IntTetraSpline;
+use crate::int::bezier::spline_quadratic::IntQuadraticSpline;
 
 #[derive(Debug, Clone)]
-pub(crate) struct TetraSpline {
+pub(crate) struct QuadraticSpline {
     pub(super) a: Point,
     pub(super) am: Point,
     pub(super) bm: Point,
     pub(super) b: Point,
 }
 
-impl SplinePointsIter for TetraSpline {
-    type ResourceIter<'a> = TetraSplinePointsIterator<'a>
+impl SplinePointsIter for QuadraticSpline {
+    type ResourceIter<'a> = QuadraticSplinePointsIterator<'a>
     where
         Self: 'a;
 
     #[inline]
-    fn points_iter(&self, start: bool, end: bool, split_factor: u32) -> TetraSplinePointsIterator {
-        TetraSplinePointsIterator::new(split_factor, start, end, self)
+    fn points_iter(&self, start: bool, end: bool, split_factor: u32) -> QuadraticSplinePointsIterator {
+        QuadraticSplinePointsIterator::new(split_factor, start, end, self)
     }
 }
 
-pub(crate) struct TetraSplinePointsIterator<'a> {
-    spline: &'a TetraSpline,
+pub(crate) struct QuadraticSplinePointsIterator<'a> {
+    spline: &'a QuadraticSpline,
     count: usize,
     split_factor: u32,
     i: usize,
 }
 
-impl<'a> TetraSplinePointsIterator<'a> {
+impl<'a> QuadraticSplinePointsIterator<'a> {
     #[inline]
-    fn new(split_factor: u32, start: bool, end: bool, spline: &'a TetraSpline) -> Self {
+    fn new(split_factor: u32, start: bool, end: bool, spline: &'a QuadraticSpline) -> Self {
         let count = (1 << split_factor) + end as usize;
         let i = (!start) as usize;
         Self { i, count, split_factor, spline }
     }
 }
 
-impl<'a> Iterator for TetraSplinePointsIterator<'a> {
+impl<'a> Iterator for QuadraticSplinePointsIterator<'a> {
     type Item = Point;
 
     #[inline]
@@ -71,8 +71,8 @@ impl<'a> Iterator for TetraSplinePointsIterator<'a> {
     }
 }
 
-impl From<&IntTetraSpline> for TetraSpline {
-    fn from(value: &IntTetraSpline) -> Self {
+impl From<&IntQuadraticSpline> for QuadraticSpline {
+    fn from(value: &IntQuadraticSpline) -> Self {
         Self {
             a: value.a.into(),
             am: value.am.into(),

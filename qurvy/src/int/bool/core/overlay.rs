@@ -22,13 +22,13 @@ impl Overlay {
 
     #[inline]
     pub fn add_bezier_path(&mut self, path: &IntBezierPath, shape_type: ShapeType) {
-        for spline in path.splines() {
-            let segment = ShapeSegment {
-                max_split_factor: spline.max_split_factor(),
-                part: ShapePart::Spline(spline),
-                shape_type
-            };
-            self.sections.push(segment);
-        }
+        // for spline in path.splines() {
+        //     let segment = ShapeSegment {
+        //         max_split_factor: spline.max_split_factor(),
+        //         part: ShapePart::Spline(spline),
+        //         shape_type
+        //     };
+        //     self.sections.push(segment);
+        // }
     }
 }

@@ -1,1 +1,2 @@
 mod solver;
+mod merge;

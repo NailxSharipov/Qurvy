@@ -1,14 +1,14 @@
 use crate::float::bezier::anchor::BezierAnchor;
 use crate::float::bezier::spline_cube::CubeSpline;
 use crate::float::bezier::spline_line::LineSpline;
-use crate::float::bezier::spline_tetra::TetraSpline;
+use crate::float::bezier::spline_quadratic::QuadraticSpline;
 use crate::float::math::point::Point;
 
 #[derive(Debug, Clone)]
 pub(crate) enum Spline {
     Line(LineSpline),
     Cube(CubeSpline),
-    Tetra(TetraSpline),
+    Tetra(QuadraticSpline),
 }
 
 pub(crate) trait SplinePointsIter {
@@ -23,7 +23,7 @@ impl Spline {
     #[inline]
     pub(super) fn new(a: &BezierAnchor, b: &BezierAnchor) -> Self {
         match (a.handle_out_point(), b.handle_in_point()) {
-            (Some(am), Some(bm)) => Spline::Tetra(TetraSpline {
+            (Some(am), Some(bm)) => Spline::Tetra(QuadraticSpline {
                 a: a.point,
                 am,
                 bm,

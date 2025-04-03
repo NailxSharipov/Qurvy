@@ -1,7 +1,7 @@
 use crate::float::bezier::spline::SplinePointsIter;
 use crate::float::bezier::spline_cube::CubeSpline;
 use crate::float::bezier::spline_line::LineSpline;
-use crate::float::bezier::spline_tetra::TetraSpline;
+use crate::float::bezier::spline_quadratic::QuadraticSpline;
 
 pub(crate) trait SplineLength {
     fn avg_length(&self, split_factor: u32) -> f64;
@@ -34,7 +34,7 @@ impl SplineLength for CubeSpline {
     }
 }
 
-impl SplineLength for TetraSpline {
+impl SplineLength for QuadraticSpline {
     fn avg_length(&self, split_factor: u32) -> f64 {
         let mut iter = self.points_iter(true, true, split_factor);
         let mut a = if let Some(first) = iter.next() {

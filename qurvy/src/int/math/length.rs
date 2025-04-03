@@ -1,19 +1,19 @@
 use crate::float::bezier::spline_cube::CubeSpline;
-use crate::float::bezier::spline_tetra::TetraSpline;
+use crate::float::bezier::spline_quadratic::QuadraticSpline;
 use crate::float::math::length::SplineLength;
 use crate::int::bezier::spline::IntSpline;
 use crate::int::bezier::spline_cube::IntCubeSpline;
 use crate::int::bezier::spline_line::IntLineSpline;
-use crate::int::bezier::spline_tetra::IntTetraSpline;
+use crate::int::bezier::spline_quadratic::IntQuadraticSpline;
 
-const AVG_LEN_CALCULATION_SPLIT_COUNT_POWER: u32 = 3;
+const AVG_LEN_CALCULATION_SPLIT_COUNT_POWER: u32 = 4;
 
 pub(crate) trait IntSplineLength {
     fn avg_length(&self, split_factor: u32) -> u64;
 
     #[inline]
     fn max_split_factor(&self) -> u32 {
-        let len = AVG_LEN_CALCULATION_SPLIT_COUNT_POWER;
+        let len = self.avg_length(AVG_LEN_CALCULATION_SPLIT_COUNT_POWER);
         if len < 4 {
             0
         } else {
@@ -46,10 +46,10 @@ impl IntSplineLength for IntCubeSpline {
     }
 }
 
-impl IntSplineLength for IntTetraSpline {
+impl IntSplineLength for IntQuadraticSpline {
     #[inline]
     fn avg_length(&self, split_factor: u32) -> u64 {
-        let spline: TetraSpline = self.into();
+        let spline: QuadraticSpline = self.into();
         let len = spline.avg_length(split_factor);
         len.min(u64::MAX as f64) as u64
     }
@@ -70,7 +70,7 @@ impl IntSplineLength for IntSpline {
 mod tests {
     use crate::int::bezier::spline_cube::IntCubeSpline;
     use crate::int::bezier::spline_line::IntLineSpline;
-    use crate::int::bezier::spline_tetra::IntTetraSpline;
+    use crate::int::bezier::spline_quadratic::IntQuadraticSpline;
     use crate::int::math::length::IntSplineLength;
     use crate::int::math::point::IntPoint;
 
@@ -99,7 +99,7 @@ mod tests {
 
     #[test]
     fn test_02() {
-        let spline = IntTetraSpline {
+        let spline = IntQuadraticSpline {
             a: IntPoint::new(0, 0),
             am: IntPoint::new(0, 50),
             bm: IntPoint::new(50, 100),

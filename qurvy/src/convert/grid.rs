@@ -2,8 +2,7 @@
 pub struct Grid {
     size_power: u32, // power of 2, default is 4 (2^4 = 16)
     scale_to_int: f64,
-    scale_to_float: f64,
-    remainder_mask: i64,
+    scale_to_float: f64
 }
 
 impl Grid {
@@ -13,9 +12,7 @@ impl Grid {
         let scale_to_int = 2f64.powi(e);
         let scale_to_float = 2f64.powi(-e);
 
-        let remainder_mask = (1 << size_power) - 1;
-
-        Self { size_power, scale_to_int, scale_to_float, remainder_mask }
+        Self { size_power, scale_to_int, scale_to_float }
     }
 
     pub fn debug() -> Self {

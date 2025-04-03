@@ -1,3 +1,3 @@
 pub(crate) mod count;
 pub(crate) mod segment;
-mod fragment;
+pub(crate) mod fragment;
