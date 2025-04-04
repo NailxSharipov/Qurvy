@@ -1,4 +1,4 @@
-use crate::float::bezier::spline::SplinePointsIter;
+use crate::float::bezier::spline::CADSpline;
 use crate::float::math::line::Line;
 use crate::float::math::point::Point;
 use crate::int::bezier::spline_line::IntLineSpline;
@@ -9,53 +9,31 @@ pub(crate) struct LineSpline {
     pub(crate) b: Point,
 }
 
-impl SplinePointsIter for LineSpline {
-    type ResourceIter<'a> = LineSplinePointsIterator<'a>
-    where
-        Self: 'a;
-
+impl CADSpline for LineSpline {
     #[inline]
-    fn points_iter(&self, start: bool, end: bool, split_factor: u32) -> LineSplinePointsIterator {
-        LineSplinePointsIterator::new(split_factor, start, end, self)
+    fn start(&self) -> Point {
+        self.a
     }
-}
-
-pub(crate) struct LineSplinePointsIterator<'a> {
-    spline: &'a LineSpline,
-    count: usize,
-    split_factor: u32,
-    i: usize,
-}
-
-impl<'a> LineSplinePointsIterator<'a> {
     #[inline]
-    fn new(split_factor: u32, start: bool, end: bool, spline: &'a LineSpline) -> Self {
-        let count = (1 << split_factor) + end as usize;
-        let i = (!start) as usize;
-        Self { i, count, split_factor, spline }
-    }
-}
-
-impl<'a> Iterator for LineSplinePointsIterator<'a> {
-    type Item = Point;
-
-    #[inline]
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.i >= self.count {
-            return None;
-        }
-        let p = Line::new(self.spline.a, self.spline.b).split_at(self.i, self.split_factor);
-
-        self.i += 1;
-
-        Some(p)
+    fn start_dir(&self) -> Point {
+        (self.b - self.a).normalized()
     }
 
     #[inline]
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        (self.count, Some(self.count))
+    fn end_dir(&self) -> Point {
+        (self.b - self.a).normalized()
+    }
+    #[inline]
+    fn end(&self) -> Point {
+        self.b
+    }
+
+    #[inline]
+    fn split_at(&self, step: usize, split_factor: u32) -> Point {
+        Line::new(self.a, self.b).split_at(step, split_factor)
     }
 }
+
 
 impl From<IntLineSpline> for LineSpline {
     fn from(value: IntLineSpline) -> Self {

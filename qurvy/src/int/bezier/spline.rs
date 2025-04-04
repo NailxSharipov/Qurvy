@@ -1,21 +1,24 @@
 use crate::int::bezier::anchor::IntBezierAnchor;
+use crate::int::bezier::approximation::IntApproximation;
+use crate::int::bezier::iter::IntSplinePointsIter;
+use crate::int::bezier::length::IntSplineLength;
 use crate::int::bezier::spline_cube::IntCubeSpline;
 use crate::int::bezier::spline_line::IntLineSpline;
-use crate::int::bezier::spline_quadratic::IntQuadraticSpline;
+use crate::int::bezier::spline_quad::IntQuadSpline;
 use crate::int::math::point::IntPoint;
 
 #[derive(Debug, Clone)]
 pub(crate) enum IntSpline {
     Line(IntLineSpline),
     Cube(IntCubeSpline),
-    Tetra(IntQuadraticSpline),
+    Quad(IntQuadSpline),
 }
 
 impl IntSpline {
     #[inline]
     pub(super) fn new(a: &IntBezierAnchor, b: &IntBezierAnchor) -> Self {
         match (a.handle_out_point(), b.handle_in_point()) {
-            (Some(am), Some(bm)) => IntSpline::Tetra(IntQuadraticSpline {
+            (Some(am), Some(bm)) => IntSpline::Quad(IntQuadSpline {
                 a: a.point,
                 am,
                 bm,
@@ -39,80 +42,37 @@ impl IntSpline {
     }
 
     #[inline]
-    pub fn fill(&self, target: &mut Vec<IntPoint>, split_factor: u32) {
+    pub fn regular_points(&self, split_factor: u32) -> Vec<IntPoint> {
         match self {
-            IntSpline::Line(s) => target.extend(s.points_iter(true, false, split_factor)),
-            IntSpline::Cube(s) => target.extend(s.points_iter(true, false, split_factor)),
-            IntSpline::Tetra(s) => target.extend(s.points_iter(true, false, split_factor)),
+            IntSpline::Line(s) => s.points_iter(true, false, split_factor).collect(),
+            IntSpline::Cube(s) => s.points_iter(true, false, split_factor).collect(),
+            IntSpline::Quad(s) => s.points_iter(true, false, split_factor).collect(),
+        }
+    }
+
+    #[inline]
+    pub fn approximate_points(&self, min_cos: u32, min_len: u32) -> Vec<IntPoint> {
+        match self {
+            IntSpline::Line(s) => s.approximate_points(min_cos, min_len),
+            IntSpline::Cube(s) => s.approximate_points(min_cos, min_len),
+            IntSpline::Quad(s) => s.approximate_points(min_cos, min_len),
+        }
+    }
+
+    #[inline]
+    pub fn avg_length(&self, min_cos: u32, min_len: u32) -> u128 {
+        match self {
+            IntSpline::Line(s) => s.avg_length(min_cos, min_len),
+            IntSpline::Cube(s) => s.avg_length(min_cos, min_len),
+            IntSpline::Quad(s) => s.avg_length(min_cos, min_len),
         }
     }
 }
 
-pub(crate) trait SplitAt {
+pub(crate) trait IntCADSpline {
+    fn start(&self) -> IntPoint;
+    fn start_dir(&self) -> IntPoint;
+    fn end_dir(&self) -> IntPoint;
+    fn end(&self) -> IntPoint;
     fn split_at(&self, step: usize, split_factor: u32) -> IntPoint;
-}
-
-pub(crate) trait SplinePointsIter {
-    type ResourceIter<'a>: Iterator<Item=IntPoint>
-    where
-        Self: 'a;
-
-    fn points_iter(&self, start: bool, end: bool, split_factor: u32) -> Self::ResourceIter<'_>;
-}
-
-impl<T> SplinePointsIter for T
-where
-    T: SplitAt,
-{
-    type ResourceIter<'a> = SplinePointsIterator<'a, T>
-    where
-        T: 'a;
-
-    #[inline]
-    fn points_iter(&self, start: bool, end: bool, split_factor: u32) -> SplinePointsIterator<Self> {
-        SplinePointsIterator::new(split_factor, start, end, self)
-    }
-}
-
-
-pub(crate) struct SplinePointsIterator<'a, Spline> {
-    spline: &'a Spline,
-    count: usize,
-    split_factor: u32,
-    i: usize,
-}
-
-impl<'a, Spline> SplinePointsIterator<'a, Spline> {
-    #[inline]
-    pub(crate) fn new(split_factor: u32, start: bool, end: bool, spline: &'a Spline) -> Self {
-        let count = (1 << split_factor) + end as usize;
-        let i = (!start) as usize;
-        Self {
-            i,
-            count,
-            split_factor,
-            spline,
-        }
-    }
-}
-
-impl<'a, Spline: SplitAt> Iterator for SplinePointsIterator<'a, Spline> {
-    type Item = IntPoint;
-
-    #[inline]
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.i >= self.count {
-            return None;
-        }
-
-        let p = self.spline.split_at(self.i, self.split_factor);
-        self.i += 1;
-
-        Some(p)
-    }
-
-    #[inline]
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        (self.count, Some(self.count))
-    }
 }

@@ -1,54 +1,21 @@
-use crate::float::bezier::spline::SplinePointsIter;
-use crate::float::bezier::spline_cube::CubeSpline;
-use crate::float::bezier::spline_line::LineSpline;
-use crate::float::bezier::spline_quadratic::QuadraticSpline;
+use crate::float::bezier::approximation::Approximation;
+use crate::float::bezier::spline::CADSpline;
+use crate::float::math::point::Point;
 
 pub(crate) trait SplineLength {
-    fn avg_length(&self, split_factor: u32) -> f64;
+    fn avg_length(&self, min_cos: f64, min_len: f64) -> f64;
 }
 
-impl SplineLength for LineSpline {
-
-    #[inline]
-    fn avg_length(&self, _split_factor: u32) -> f64 {
-        self.a.distance(self.b)
-    }
-}
-
-impl SplineLength for CubeSpline {
-    fn avg_length(&self, split_factor: u32) -> f64 {
-        let mut iter = self.points_iter(true, true, split_factor);
-        let mut a = if let Some(first) = iter.next() {
-            first
-        } else {
-          return 0.0;
-        };
-
-        let mut s = 0.0;
-        for b in iter {
-            s += a.distance(b);
-            a = b;
+impl<Spline: CADSpline> SplineLength for Spline {
+    fn avg_length(&self, min_cos: f64, min_len: f64) -> f64 {
+        let points = self.approximate_points(min_cos, min_len);
+        let mut len = 0f64;
+        for w in points.windows(2) {
+            let a: Point = w[0].into();
+            let b: Point = w[1].into();
+            len += (a - b).length()
         }
 
-        s
-    }
-}
-
-impl SplineLength for QuadraticSpline {
-    fn avg_length(&self, split_factor: u32) -> f64 {
-        let mut iter = self.points_iter(true, true, split_factor);
-        let mut a = if let Some(first) = iter.next() {
-            first
-        } else {
-            return 0.0;
-        };
-
-        let mut s = 0.0;
-        for b in iter {
-            s += a.distance(b);
-            a = b;
-        }
-
-        s
+        len
     }
 }

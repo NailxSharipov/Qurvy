@@ -1,10 +1,10 @@
+use crate::convert::grid::Grid;
 use crate::convert::to_float::ToFloat;
 use crate::float::bezier::path::BezierPath;
 use crate::int::bezier::anchor::IntBezierAnchor;
 use crate::int::bezier::spline::IntSpline;
 use crate::int::math::point::IntPoint;
 use serde::{Deserialize, Serialize};
-use crate::convert::grid::Grid;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IntBezierPath {
@@ -24,35 +24,56 @@ impl ToFloat<BezierPath> for IntBezierPath {
 
 impl IntBezierPath {
     #[inline]
-    pub fn points(&self, split_factor: u32) -> Vec<IntPoint> {
+    pub fn regular_points(&self, split_factor: u32) -> Vec<IntPoint> {
         let capacity = self.anchors.len() << split_factor;
         let mut points = Vec::with_capacity(capacity);
         for spline in self.splines() {
-            spline.fill(&mut points, split_factor);
+            points.append(&mut spline.regular_points(split_factor));
         }
 
         points
     }
 
     #[inline]
+    pub fn approximate_points(&self, min_cos: u32, min_len: u32) -> Vec<IntPoint> {
+        let capacity = self.anchors.len() * 16;
+        let mut points = Vec::with_capacity(capacity);
+        for spline in self.splines() {
+            points.append(&mut spline.approximate_points(min_cos, min_len));
+        }
+
+        points
+    }
+
+    #[inline]
+    pub fn avg_length(&self, min_cos: u32, min_len: u32) -> u128 {
+        let mut len = 0u128;
+        for spline in self.splines() {
+            len += spline.avg_length(min_cos, min_len);
+        }
+
+        len
+    }
+
+    #[inline]
     pub(crate) fn splines(&self) -> impl Iterator<Item = IntSpline> + '_ {
-        SplineIterator::new(self)
+        IntSplineIterator::new(self)
     }
 }
 
-pub(crate) struct SplineIterator<'a> {
+pub(crate) struct IntSplineIterator<'a> {
     path: &'a IntBezierPath,
     i: usize,
 }
 
-impl<'a> SplineIterator<'a> {
+impl<'a> IntSplineIterator<'a> {
     #[inline]
     fn new(path: &'a IntBezierPath) -> Self {
         Self { i: 1, path }
     }
 }
 
-impl<'a> Iterator for SplineIterator<'a> {
+impl<'a> Iterator for IntSplineIterator<'a> {
     type Item = IntSpline;
 
     #[inline]
@@ -116,7 +137,7 @@ mod tests {
             closed: true,
         };
 
-        let points = path.points(2);
+        let points = path.regular_points(2);
 
         assert_eq!(points.len(), 16);
     }

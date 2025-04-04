@@ -1,5 +1,5 @@
-use crate::int::bezier::spline::SplitAt;
-use crate::int::math::line::Line;
+use crate::int::bezier::spline::IntCADSpline;
+use crate::int::math::line::IntLine;
 use crate::int::math::point::IntPoint;
 
 #[derive(Debug, Clone)]
@@ -9,13 +9,30 @@ pub(crate) struct IntCubeSpline {
     pub(crate) b: IntPoint,
 }
 
-impl SplitAt for IntCubeSpline {
+impl IntCADSpline for IntCubeSpline {
+    #[inline]
+    fn start(&self) -> IntPoint {
+        self.a
+    }
+    #[inline]
+    fn start_dir(&self) -> IntPoint {
+        (self.m - self.a).normalized_10bit()
+    }
+    #[inline]
+    fn end_dir(&self) -> IntPoint {
+        (self.b - self.m).normalized_10bit()
+    }
+    #[inline]
+    fn end(&self) -> IntPoint {
+        self.b
+    }
+
     #[inline]
     fn split_at(&self, step: usize, split_factor: u32) -> IntPoint {
-        let l0 = Line::new(self.a, self.m);
-        let l1 = Line::new(self.m, self.b);
+        let l0 = IntLine::new(self.a, self.m);
+        let l1 = IntLine::new(self.m, self.b);
         let p10 = l0.split_at(step, split_factor);
         let p11 = l1.split_at(step, split_factor);
-        Line::new(p10, p11).split_at(step, split_factor)
+        IntLine::new(p10, p11).split_at(step, split_factor)
     }
 }

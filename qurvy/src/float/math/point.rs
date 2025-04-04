@@ -18,11 +18,16 @@ impl Point {
     }
 
     #[inline]
-    pub fn length(&self) -> f64 {
+    pub fn sqr_length(&self) -> f64 {
         let dx = self.x;
         let dy = self.y;
 
-        (dx * dx + dy * dy).sqrt()
+        dx * dx + dy * dy
+    }
+
+    #[inline]
+    pub fn length(&self) -> f64 {
+        self.sqr_length().sqrt()
     }
 
     #[inline]
@@ -34,11 +39,16 @@ impl Point {
     }
 
     #[inline]
-    pub fn normalize(&self) -> Point {
+    pub fn normalized(&self) -> Point {
         let inv_len = 1.0 / self.length();
         let x = self.x * inv_len;
         let y = self.y * inv_len;
         Point { x, y }
+    }
+
+    #[inline]
+    pub fn dot_product(&self, other: &Self) -> f64 {
+        self.x * other.x + self.y * other.y
     }
 }
 

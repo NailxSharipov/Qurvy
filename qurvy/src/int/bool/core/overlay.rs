@@ -1,6 +1,4 @@
-use crate::int::bezier::path::IntBezierPath;
-use crate::int::bool::geom::segment::{ShapePart, ShapeSegment};
-use crate::int::math::length::IntSplineLength;
+use crate::int::bool::geom::segment::ShapeSegment;
 
 #[derive(Debug, Clone, Copy)]
 pub enum ShapeType {
@@ -20,15 +18,8 @@ impl Overlay {
         Self { sections: Vec::new() }
     }
 
-    #[inline]
-    pub fn add_bezier_path(&mut self, path: &IntBezierPath, shape_type: ShapeType) {
-        // for spline in path.splines() {
-        //     let segment = ShapeSegment {
-        //         max_split_factor: spline.max_split_factor(),
-        //         part: ShapePart::Spline(spline),
-        //         shape_type
-        //     };
-        //     self.sections.push(segment);
-        // }
-    }
+    // #[inline]
+    // pub fn add_bezier_path(&mut self, path: &IntBezierPath, shape_type: ShapeType) {
+    //
+    // }
 }

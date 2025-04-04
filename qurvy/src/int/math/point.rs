@@ -45,6 +45,16 @@ impl IntPoint {
             IntPoint::new(x, y)
         }
     }
+
+    #[inline]
+    pub fn dot_product(&self, other: &Self) -> i64 {
+        self.x * other.x + self.y * other.y
+    }
+
+    #[inline]
+    pub fn cross_product(&self, other: &Self) -> i64 {
+        self.x * other.y - self.y * other.x
+    }
 }
 
 impl ops::Add for IntPoint {

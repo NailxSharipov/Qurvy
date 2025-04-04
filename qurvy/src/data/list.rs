@@ -1,22 +1,22 @@
-const EMPTY_REF: u32 = u32::MAX;
+pub(crate) const EMPTY_REF: u32 = u32::MAX;
 
-pub(crate) struct Node<T> {
-    prev: u32,
-    next: u32,
-    item: T,
+pub(crate) struct ListNode<T> {
+    pub(crate) prev: u32,
+    pub(crate) next: u32,
+    pub(crate) item: T,
 }
 
 pub(crate) struct LinkList<T> {
-    nodes: Vec<Node<T>>,
+    nodes: Vec<ListNode<T>>,
 }
 
 impl<T: Copy> LinkList<T> {
     #[inline]
-    fn len(&self) -> usize {
+    pub(crate) fn len(&self) -> usize {
         self.nodes.len()
     }
 
-    fn new(items: Vec<T>) -> Self {
+    pub(crate) fn new(items: Vec<T>) -> Self {
         let mut nodes = Vec::with_capacity((2 * items.len()).min(16));
         if items.is_empty() {
             return Self { nodes };
@@ -25,7 +25,7 @@ impl<T: Copy> LinkList<T> {
         let mut prev = EMPTY_REF;
         let mut next = 1;
         for item in items {
-            nodes.push(Node { prev, next, item });
+            nodes.push(ListNode { prev, next, item });
             prev = next - 1;
             next += 1;
         }
@@ -35,17 +35,22 @@ impl<T: Copy> LinkList<T> {
         Self { nodes }
     }
 
-    fn split_at(&mut self, index: u32, a: T, b: T) -> (u32, u32) {
+    #[inline]
+    pub(crate) fn get(&self, index: u32) -> &ListNode<T> {
+        unsafe { self.nodes.get_unchecked(index as usize) }
+    }
+
+    pub(crate) fn split_at(&mut self, index: u32, a: T, b: T) -> (u32, u32) {
         // insert a new node as next and update this node value
 
         let new_index = self.nodes.len() as u32;
 
-        let mut node = &mut self.nodes[index as usize];
+        let node = &mut self.nodes[index as usize];
         let next = node.next;
         node.next = new_index;
         node.item = a;
 
-        self.nodes.push(Node {
+        self.nodes.push(ListNode {
             prev: index,
             next,
             item: b,
