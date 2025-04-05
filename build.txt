@@ -1,0 +1,13 @@
+# In root directory
+
+wasm-pack build --release --target web
+wasm-pack pack
+
+# In docs-gen
+
+mdbook serve --open
+mdbook build
+
+# pkg 
+npm login
+npm publish qurvy-0.1.0.tgz

@@ -1,0 +1,12 @@
+[book]
+authors = ["Nail Sharipov"]
+language = "en"
+multilingual = false
+src = "src"
+title = "Qurvy"
+
+[output.html]
+mathjax-support = true
+
+[build]
+build-dir = "../docs"
